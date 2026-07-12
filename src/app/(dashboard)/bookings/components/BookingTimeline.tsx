@@ -91,8 +91,8 @@ export function BookingTimeline({ assets }: { assets: any[] }) {
           </SelectTrigger>
           <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-200">
             {assets.map(asset => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name} ({asset.category?.name || 'Uncategorized'})
+              <SelectItem key={asset.id} value={asset.id} >
+                {`${asset.name} (${asset.category?.name || 'Uncategorized'})`}
               </SelectItem>
             ))}
           </SelectContent>

@@ -82,8 +82,8 @@ export function SetupDialogs({ type, users, departments }: { type: "department" 
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-200">
                   <SelectItem value="unassigned">Leave Unassigned</SelectItem>
-                  {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name} ({u.role})</SelectItem>
+                  {users.map((u: any) => (
+                    <SelectItem key={u.id} value={u.id}>{`${u.name} (${u.role})`}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

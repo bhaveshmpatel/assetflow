@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { AuditClient } from "./components/AuditClient";
+import { StartAuditButton } from "./components/StartAuditButton";
 import { AuditStatus } from "@prisma/client";
 
 export default async function AuditPage() {
@@ -25,9 +26,12 @@ export default async function AuditPage() {
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto h-full flex flex-col p-4 md:p-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Asset Audit</h1>
-        <p className="text-zinc-400">Structured verification interface for physical asset audits.</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Asset Audit</h1>
+          <p className="text-zinc-400">Structured verification interface for physical asset audits.</p>
+        </div>
+        {!activeAudit && <StartAuditButton />}
       </div>
 
       {activeAudit ? (

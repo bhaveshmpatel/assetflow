@@ -102,11 +102,13 @@ export function AllocationForm({
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between bg-zinc-950 border-zinc-800 text-zinc-200 h-12"
+              className="w-full justify-between bg-zinc-950 border-zinc-800 text-zinc-200 h-12 hover:bg-zinc-900"
             >
-              {selectedAssetId
-                ? `${selectedAssetBasic?.assetTag} - ${selectedAssetBasic?.name}`
-                : "Search by tag or name..."}
+              <span className="truncate text-left flex-1">
+                {selectedAssetId
+                  ? `${selectedAssetBasic?.assetTag} - ${selectedAssetBasic?.name}`
+                  : "Search by tag or name..."}
+              </span>
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -121,16 +123,11 @@ export function AllocationForm({
                       key={asset.id}
                       value={`${asset.assetTag} ${asset.name}`}
                       onSelect={() => handleAssetSelect(asset.id)}
-                      className="text-zinc-200 aria-selected:bg-zinc-800 aria-selected:text-white"
+                      data-checked={selectedAssetId === asset.id}
+                      className="text-zinc-200 data-[selected=true]:bg-zinc-800 data-[selected=true]:text-white cursor-pointer py-2.5"
                     >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4 text-emerald-500",
-                          selectedAssetId === asset.id ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      <span className="font-mono text-zinc-400 mr-2">{asset.assetTag}</span>
-                      {asset.name}
+                      <span className="font-mono text-emerald-500 mr-3">{asset.assetTag}</span>
+                      <span className="truncate">{asset.name}</span>
                     </CommandItem>
                   ))}
                 </CommandGroup>
@@ -167,7 +164,7 @@ export function AllocationForm({
                       <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-200 max-h-[300px]">
                         {users.map((u) => (
                           <SelectItem key={u.id} value={u.id}>
-                            {u.name} {u.department ? `(${u.department.name})` : ''}
+                            {`${u.name} ${u.department ? `(${u.department.name})` : ''}`.trim()}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -235,7 +232,7 @@ export function AllocationForm({
                       <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-200 max-h-[300px]">
                         {users.filter(u => u.id !== assetDetails.currentAllocation?.user?.id).map((u) => (
                           <SelectItem key={u.id} value={u.id}>
-                            {u.name} {u.department ? `(${u.department.name})` : ''}
+                            {`${u.name} ${u.department ? `(${u.department.name})` : ''}`.trim()}
                           </SelectItem>
                         ))}
                       </SelectContent>
