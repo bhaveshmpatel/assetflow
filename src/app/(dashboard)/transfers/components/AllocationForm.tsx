@@ -275,7 +275,7 @@ export function AllocationForm({
             <h3 className="text-sm font-medium text-zinc-400">Allocation history</h3>
             {assetDetails.history && assetDetails.history.length > 0 ? (
               <div className="space-y-4 pl-2 border-l-2 border-zinc-800">
-                {assetDetails.history.map((record: any) => (
+                {assetDetails.history.map((record: { id: string, checkoutDate: string | Date, actualReturnDate?: string | Date | null, user?: { name: string, department?: { name: string } } }) => (
                   <div key={record.id} className="relative pl-4">
                     <div className="absolute -left-[11px] top-1.5 h-2 w-2 rounded-full bg-zinc-600 ring-4 ring-zinc-900" />
                     <p className="text-sm text-zinc-300">

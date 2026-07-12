@@ -12,12 +12,10 @@ export default async function AuditPage() {
   const activeAudit = await prisma.auditCycle.findFirst({
     where: { status: AuditStatus.ACTIVE },
     include: {
-      initiatedBy: { select: { name: true } },
+      initiatedBy: true,
       auditItems: {
         include: {
-          asset: {
-            select: { id: true, assetTag: true, name: true, location: true }
-          }
+          asset: true
         }
       }
     },
@@ -25,7 +23,7 @@ export default async function AuditPage() {
   });
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto h-full flex flex-col p-4 md:p-8">
+    <div className="space-y-6 max-w-7xl mx-auto w-full h-full flex flex-col p-4 md:p-8">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Asset Audit</h1>

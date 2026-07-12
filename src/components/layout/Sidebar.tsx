@@ -164,53 +164,70 @@ export function Sidebar({ user }: SidebarProps) {
       </div>
 
       {/* User Profile */}
-      <div className="mt-auto border-t border-zinc-800 p-3">
-        <DropdownMenu>
-          {/* @ts-ignore */}
-          <DropdownMenuTrigger asChild>
-            <button className="flex w-full items-center gap-3 rounded-md p-2 hover:bg-zinc-800/50 transition-colors">
-              <Avatar className="h-8 w-8 rounded-md border border-zinc-700">
-                <AvatarFallback className="bg-zinc-800 text-zinc-300 rounded-md">
-                  <UserIcon className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <AnimatePresence initial={false}>
-                {!collapsed && (
-                  <motion.div
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    className="flex flex-col items-start overflow-hidden whitespace-nowrap"
-                  >
-                    <span className="text-sm font-medium text-zinc-200">
-                      {user.name}
-                    </span>
-                    <span className="text-xs text-zinc-500 capitalize">
-                      {user.role.replace("_", " ").toLowerCase()}
-                    </span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="end" className="w-56 bg-zinc-900 border-zinc-800 text-zinc-300">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-zinc-800" />
-            <DropdownMenuItem className="focus:bg-zinc-800 focus:text-zinc-50 cursor-pointer">
-              <UserIcon className="mr-2 h-4 w-4" />
-              <span>Profile Settings</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-zinc-800 focus:text-zinc-50 cursor-pointer">
-              <Bell className="mr-2 h-4 w-4" />
-              <span>Notifications</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-zinc-800" />
-            <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:bg-red-500/10 focus:text-red-400 cursor-pointer">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sign Out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="mt-auto border-t border-zinc-800 p-3 flex items-center justify-between">
+        <div className="flex items-center w-full min-w-0">
+          <DropdownMenu>
+            {/* @ts-ignore */}
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 rounded-md p-2 hover:bg-zinc-800/50 transition-colors flex-1 min-w-0 truncate">
+                <Avatar className="h-8 w-8 shrink-0 rounded-md border border-zinc-700">
+                  <AvatarFallback className="bg-zinc-800 text-zinc-300 rounded-md">
+                    <UserIcon className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <AnimatePresence initial={false}>
+                  {!collapsed && (
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      className="flex flex-col items-start overflow-hidden whitespace-nowrap"
+                    >
+                      <span className="text-sm font-medium text-zinc-200 truncate">
+                        {user.name}
+                      </span>
+                      <span className="text-xs text-zinc-500 capitalize truncate">
+                        {user.role.replace("_", " ").toLowerCase()}
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="end" className="w-56 bg-zinc-900 border-zinc-800 text-zinc-300">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-zinc-800" />
+              <DropdownMenuItem className="focus:bg-zinc-800 focus:text-zinc-50 cursor-pointer">
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>Profile Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="focus:bg-zinc-800 focus:text-zinc-50 cursor-pointer">
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Notifications</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-zinc-800" />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:bg-red-500/10 focus:text-red-400 cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <AnimatePresence initial={false}>
+            {!collapsed && (
+              <motion.button
+                onClick={handleLogout}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="ml-auto flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-800 hover:text-red-400 transition-colors shrink-0"
+                title="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </motion.aside>
   );

@@ -14,12 +14,38 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { createAllocation, createTransferRequest } from "@/actions/allocation";
+import { Prisma, Role } from "@prisma/client";
 
-export function TransferClient({ assets, users, departments, currentUserRole }: any) {
+type AssetWithRelations = Prisma.AssetGetPayload<{
+  include: {
+    allocations: {
+      include: {
+        user: true,
+        assignedBy: true,
+        department: true,
+      },
+    }
+  }
+}>;
+
+type UserPayload = Prisma.UserGetPayload<{
+  select: { id: true, name: true, employeeId: true, role: true }
+}>;
+
+type DepartmentPayload = Prisma.DepartmentGetPayload<{}>;
+
+interface TransferClientProps {
+  assets: AssetWithRelations[];
+  users: UserPayload[];
+  departments: DepartmentPayload[];
+  currentUserRole: Role;
+}
+
+export function TransferClient({ assets, users, departments, currentUserRole }: TransferClientProps) {
   const [open, setOpen] = useState(false);
   const [selectedAssetId, setSelectedAssetId] = useState("");
 
-  const selectedAsset = assets.find((a: any) => a.id === selectedAssetId);
+  const selectedAsset = assets.find((a) => a.id === selectedAssetId);
 
   const handleAllocate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,6 +64,7 @@ export function TransferClient({ assets, users, departments, currentUserRole }: 
   const handleTransfer = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    if (!selectedAsset) return;
     formData.append("allocationId", selectedAsset.allocations[0]?.id);
     
     const result = await createTransferRequest(formData);
@@ -78,7 +105,7 @@ export function TransferClient({ assets, users, departments, currentUserRole }: 
                 <CommandList>
                   <CommandEmpty>No asset found.</CommandEmpty>
                   <CommandGroup>
-                    {assets.map((asset: any) => (
+                    {assets.map((asset) => (
                       <CommandItem
                         key={asset.id}
                         value={`${asset.assetTag} ${asset.name}`}
@@ -127,8 +154,8 @@ export function TransferClient({ assets, users, departments, currentUserRole }: 
                         <SelectValue placeholder="Select user" />
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-zinc-800">
-                        {users.map((u: any) => (
-                          <SelectItem key={u.id} value={u.id} className="text-zinc-200">{u.name}</SelectItem>
+                        {users.map((u) => (
+                          <SelectItem key={u.id} value={u.id} label={u.name} className="text-zinc-200">{u.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -141,8 +168,8 @@ export function TransferClient({ assets, users, departments, currentUserRole }: 
                       </SelectTrigger>
                       <SelectContent className="bg-zinc-900 border-zinc-800">
                         <SelectItem value="" className="text-zinc-400">None</SelectItem>
-                        {departments.map((d: any) => (
-                          <SelectItem key={d.id} value={d.id} className="text-zinc-200">{d.name}</SelectItem>
+                        {departments.map((d) => (
+                          <SelectItem key={d.id} value={d.id} label={d.name} className="text-zinc-200">{d.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -191,8 +218,8 @@ export function TransferClient({ assets, users, departments, currentUserRole }: 
                       <SelectValue placeholder="Select user" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-zinc-800">
-                      {users.map((u: any) => (
-                        <SelectItem key={u.id} value={u.id} className="text-zinc-200">{u.name}</SelectItem>
+                      {users.map((u) => (
+                        <SelectItem key={u.id} value={u.id} label={u.name} className="text-zinc-200">{u.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -229,7 +256,7 @@ export function TransferClient({ assets, users, departments, currentUserRole }: 
               {selectedAsset.allocations.length === 0 ? (
                 <p className="text-center text-sm text-zinc-500 py-4 relative z-10">No allocation history available.</p>
               ) : (
-                selectedAsset.allocations.map((alloc: any, i: number) => (
+                selectedAsset.allocations.map((alloc) => (
                   <div key={alloc.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 bg-zinc-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
                       <div className="w-2 h-2 rounded-full bg-emerald-500"></div>

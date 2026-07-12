@@ -36,14 +36,14 @@ export default async function NotificationsPage() {
   // Fetch all logs
   const logs = await prisma.activityLog.findMany({
     include: {
-      user: { select: { name: true, employeeId: true } }
+      user: true
     },
     orderBy: { createdAt: 'desc' },
     take: 100
   });
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto h-full flex flex-col pt-4 md:pt-8">
+    <div className="space-y-6 max-w-7xl mx-auto w-full h-full flex flex-col p-4 md:p-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Action Center</h1>
         <p className="text-zinc-400">Manage pending requests and review system activity.</p>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import { SubmitButton } from "@/components/ui/submit-button";
+import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +17,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { registerAsset } from "@/actions/asset";
+import { AssetCategory, Department } from "@prisma/client";
 
-export function AssetDialogs({ categories, departments }: { categories: any[], departments: any[] }) {
+export function AssetDialogs({ categories, departments }: { categories: AssetCategory[], departments: Department[] }) {
   const [open, setOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   async function actionWrapper(formData: FormData) {
     if (!formData.get("categoryId")) {
@@ -27,13 +29,12 @@ export function AssetDialogs({ categories, departments }: { categories: any[], d
       return;
     }
 
-    setIsSubmitting(true);
     const result = await registerAsset(formData);
-    setIsSubmitting(false);
     
     if (result.success) {
       toast.success(result.message);
       setOpen(false);
+      formRef.current?.reset();
     } else {
       toast.error(result.error);
     }
@@ -54,7 +55,7 @@ export function AssetDialogs({ categories, departments }: { categories: any[], d
             The Asset Tag will be auto-generated sequentially.
           </DialogDescription>
         </DialogHeader>
-        <form action={actionWrapper} className="space-y-4 pt-4">
+        <form ref={formRef} action={actionWrapper} className="space-y-4 pt-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-zinc-300">Asset Name/Model</Label>
             <Input 
@@ -77,7 +78,7 @@ export function AssetDialogs({ categories, departments }: { categories: any[], d
                 </SelectTrigger>
                 <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-200">
                   {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    <SelectItem key={c.id} value={c.id} label={c.name}>{c.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -93,7 +94,7 @@ export function AssetDialogs({ categories, departments }: { categories: any[], d
               <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-200">
                 <SelectItem value="">Global / Unassigned</SelectItem>
                 {departments.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  <SelectItem key={d.id} value={d.id} label={d.name}>{d.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -110,13 +111,13 @@ export function AssetDialogs({ categories, departments }: { categories: any[], d
           </div>
           
           <div className="flex justify-end pt-4">
-            <Button 
-              type="submit" 
-              disabled={isSubmitting || categories.length === 0}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white w-full"
+            <SubmitButton 
+              disabled={categories.length === 0}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20"
+              loadingText="Registering..."
             >
-              {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Registering...</> : "Register Asset"}
-            </Button>
+              Register Asset
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>

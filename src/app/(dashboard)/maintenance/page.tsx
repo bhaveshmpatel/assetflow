@@ -10,14 +10,14 @@ export default async function MaintenancePage() {
 
   const maintenanceRequests = await prisma.maintenanceRequest.findMany({
     include: {
-      asset: { select: { assetTag: true, name: true } },
-      reportedBy: { select: { name: true } },
-      approvedBy: { select: { name: true } },
+      asset: true,
+      reportedBy: true,
+      approvedBy: true,
     },
     orderBy: { createdAt: 'desc' }
   });
 
-  const columns = [
+  const columns: { id: MaintenanceStatus, title: string }[] = [
     { id: "PENDING", title: "Pending" },
     { id: "APPROVED", title: "Approved" },
     { id: "TECHNICIAN_ASSIGNED", title: "Technician Assigned" },
@@ -26,7 +26,7 @@ export default async function MaintenancePage() {
   ];
 
   return (
-    <div className="space-y-8 h-full flex flex-col p-4 md:p-8">
+    <div className="space-y-6 max-w-7xl mx-auto w-full h-full flex flex-col p-4 md:p-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Maintenance Board</h1>
         <p className="text-zinc-400">Track and manage asset repairs through the resolution pipeline.</p>

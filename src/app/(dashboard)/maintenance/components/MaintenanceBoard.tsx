@@ -5,10 +5,20 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { cn } from "@/lib/utils";
 import { updateMaintenanceStatus } from "@/actions/maintenance";
 import { toast } from "sonner";
-import { MaintenanceStatus } from "@prisma/client";
+import { MaintenanceStatus, Prisma, Role } from "@prisma/client";
 import { Wrench, Clock, CheckCircle2, UserCircle2 } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
-export function MaintenanceBoard({ initialRequests, columns, userRole }: { initialRequests: any[], columns: any[], userRole: string }) {
+type MaintenanceRequestPayload = Prisma.MaintenanceRequestGetPayload<{
+  include: { asset: true, reportedBy: true, approvedBy: true }
+}>;
+
+interface BoardColumn {
+  id: MaintenanceStatus;
+  title: string;
+}
+
+export function MaintenanceBoard({ initialRequests, columns, userRole }: { initialRequests: MaintenanceRequestPayload[], columns: BoardColumn[], userRole: string }) {
   const [requests, setRequests] = useState(initialRequests);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -50,7 +60,15 @@ export function MaintenanceBoard({ initialRequests, columns, userRole }: { initi
 
   return (
     <div className="flex-1 overflow-x-auto pb-4">
-      <DragDropContext onDragEnd={onDragEnd}>
+      {requests.length === 0 ? (
+        <EmptyState 
+          icon={Wrench}
+          title="No maintenance requests"
+          description="There are currently no assets under maintenance. New maintenance requests will appear here when an asset is flagged for repair."
+          className="mt-8 mx-auto max-w-2xl"
+        />
+      ) : (
+        <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex h-full min-h-[500px] gap-4">
           {columns.map(column => {
             const columnRequests = requests.filter(r => r.status === column.id);
@@ -117,7 +135,8 @@ export function MaintenanceBoard({ initialRequests, columns, userRole }: { initi
             );
           })}
         </div>
-      </DragDropContext>
+        </DragDropContext>
+      )}
     </div>
   );
 }

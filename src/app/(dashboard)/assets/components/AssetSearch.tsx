@@ -60,13 +60,13 @@ export function AssetSearch() {
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-200">
-            <SelectItem value="ALL">All Statuses</SelectItem>
-            <SelectItem value="AVAILABLE">Available</SelectItem>
-            <SelectItem value="ALLOCATED">Allocated</SelectItem>
-            <SelectItem value="UNDER_MAINTENANCE">Maintenance</SelectItem>
-            <SelectItem value="RESERVED">Reserved</SelectItem>
-            <SelectItem value="LOST">Lost</SelectItem>
-            <SelectItem value="RETIRED">Retired</SelectItem>
+            <SelectItem value="ALL" label="All Statuses">All Statuses</SelectItem>
+            <SelectItem value="AVAILABLE" label="Available">Available</SelectItem>
+            <SelectItem value="ALLOCATED" label="Allocated">Allocated</SelectItem>
+            <SelectItem value="UNDER_MAINTENANCE" label="Maintenance">Maintenance</SelectItem>
+            <SelectItem value="RESERVED" label="Reserved">Reserved</SelectItem>
+            <SelectItem value="LOST" label="Lost">Lost</SelectItem>
+            <SelectItem value="RETIRED" label="Retired">Retired</SelectItem>
           </SelectContent>
         </Select>
       </div>

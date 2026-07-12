@@ -4,6 +4,20 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { AuditItemCondition, AssetStatus, AuditStatus, LogType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const startSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters")
+});
+
+const closeSchema = z.object({
+  auditId: z.string().cuid(),
+  itemStates: z.array(z.object({
+    auditItemId: z.string().cuid(),
+    condition: z.nativeEnum(AuditItemCondition),
+    assetId: z.string().cuid()
+  }))
+});
 
 export async function startAuditCycle(title: string) {
   try {
@@ -11,6 +25,8 @@ export async function startAuditCycle(title: string) {
     if (!user || user.role === "EMPLOYEE") {
       return { success: false, error: "Unauthorized" };
     }
+
+    const { title: validatedTitle } = startSchema.parse({ title });
 
     const activeAudit = await prisma.auditCycle.findFirst({
       where: { status: AuditStatus.ACTIVE }
@@ -37,7 +53,7 @@ export async function startAuditCycle(title: string) {
     await prisma.$transaction(async (tx) => {
       const cycle = await tx.auditCycle.create({
         data: {
-          title,
+          title: validatedTitle,
           initiatedById: user.id,
           status: AuditStatus.ACTIVE,
         }
@@ -66,6 +82,9 @@ export async function startAuditCycle(title: string) {
     return { success: true, message: "New audit cycle started successfully." };
   } catch (error: any) {
     console.error("Start audit error:", error);
+    if (error instanceof z.ZodError) {
+      return { success: false, error: (error as any).errors[0].message };
+    }
     return { success: false, error: "Failed to start new audit cycle." };
   }
 }
@@ -80,10 +99,12 @@ export async function closeAuditCycle(
       return { success: false, error: "Unauthorized" };
     }
 
+    const validated = closeSchema.parse({ auditId, itemStates });
+
     let discrepancies = 0;
 
     await prisma.$transaction(async (tx) => {
-      for (const item of itemStates) {
+      for (const item of validated.itemStates) {
         // 1. Update AuditItem condition
         await tx.auditItem.update({
           where: { id: item.auditItemId },
@@ -117,7 +138,7 @@ export async function closeAuditCycle(
 
       // 3. Mark AuditCycle as completed
       const cycle = await tx.auditCycle.update({
-        where: { id: auditId },
+        where: { id: validated.auditId },
         data: { 
           status: AuditStatus.COMPLETED,
           endDate: new Date(),
@@ -141,6 +162,9 @@ export async function closeAuditCycle(
     return { success: true, message: `Audit closed. ${discrepancies} discrepancies found.` };
   } catch (error: any) {
     console.error("Audit closure failed:", error);
+    if (error instanceof z.ZodError) {
+      return { success: false, error: (error as any).errors[0].message };
+    }
     return { success: false, error: "Failed to close audit cycle." };
   }
 }

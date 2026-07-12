@@ -16,8 +16,28 @@ import {
   approveMaintenanceRequest, 
   rejectMaintenanceRequest 
 } from "@/actions/requests";
+import { Prisma } from "@prisma/client";
 
 type UserRole = "ADMIN" | "ASSET_MANAGER" | "DEPARTMENT_HEAD" | "EMPLOYEE";
+
+type TransferRequestPayload = Prisma.TransferRequestGetPayload<{
+  include: {
+    requestedBy: true,
+    targetUser: true,
+    allocation: { include: { asset: true, user: true } }
+  }
+}>;
+
+type MaintenanceRequestPayload = Prisma.MaintenanceRequestGetPayload<{
+  include: {
+    asset: true,
+    reportedBy: true
+  }
+}>;
+
+type LogPayload = Prisma.ActivityLogGetPayload<{
+  include: { user: true }
+}>;
 
 export function ActionCenter({ 
   transferRequests, 
@@ -26,9 +46,9 @@ export function ActionCenter({
   userRole,
   currentUserId
 }: { 
-  transferRequests: any[], 
-  maintenanceRequests: any[],
-  logs: any[],
+  transferRequests: TransferRequestPayload[], 
+  maintenanceRequests: MaintenanceRequestPayload[],
+  logs: LogPayload[],
   userRole: UserRole,
   currentUserId: string
 }) {

@@ -9,8 +9,10 @@ import {
   CalendarDays, 
   ArrowRightLeft, 
   Clock,
-  Plus
+  Plus,
+  Activity
 } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
@@ -59,7 +61,7 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto w-full h-full flex flex-col p-4 md:p-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Dashboard overview</h1>
         <p className="text-zinc-400">Track and manage your enterprise resources globally.</p>
@@ -202,7 +204,11 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {recentActivity.length === 0 ? (
-                <p className="text-sm text-zinc-500 text-center py-4">No recent activity.</p>
+                <EmptyState
+                  icon={Activity}
+                  title="No recent activity"
+                  description="System logs, bookings, and transfers will appear here once actions are taken."
+                />
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {recentActivity.map((log) => (

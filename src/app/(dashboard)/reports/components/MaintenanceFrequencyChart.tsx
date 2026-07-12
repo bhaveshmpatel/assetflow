@@ -3,7 +3,7 @@
 import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function MaintenanceFrequencyChart({ data }: { data: any[] }) {
+export function MaintenanceFrequencyChart({ data }: { data: { month: string, count: number }[] }) {
   return (
     <Card className="bg-zinc-950/80 border-zinc-800 backdrop-blur-sm">
       <CardHeader>
@@ -34,7 +34,7 @@ export function MaintenanceFrequencyChart({ data }: { data: any[] }) {
               />
               <Line 
                 type="monotone" 
-                dataKey="requests" 
+                dataKey="count" 
                 stroke="#10b981" 
                 strokeWidth={3}
                 dot={{ fill: '#09090b', stroke: '#10b981', strokeWidth: 2, r: 4 }}

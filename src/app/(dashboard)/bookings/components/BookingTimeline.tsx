@@ -13,14 +13,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { createBooking } from "@/actions/booking";
+import { Prisma } from "@prisma/client";
 
-export function BookingTimeline({ assets }: { assets: any[] }) {
+type AssetPayload = Prisma.AssetGetPayload<{
+  include: {
+    category: true;
+    bookings: {
+      include: { user: true }
+    }
+  }
+}>;
+
+export function BookingTimeline({ assets }: { assets: AssetPayload[] }) {
   const [date, setDate] = useState<Date>(new Date());
   const [selectedAssetId, setSelectedAssetId] = useState<string>(assets[0]?.id || "");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const selectedAsset = assets.find(a => a.id === selectedAssetId);
-  const bookingsForDate = selectedAsset?.bookings.filter((b: any) => isSameDay(new Date(b.startTime), date)) || [];
+  const bookingsForDate = selectedAsset?.bookings.filter((b) => isSameDay(new Date(b.startTime), date)) || [];
 
   const handleBook = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -91,7 +101,7 @@ export function BookingTimeline({ assets }: { assets: any[] }) {
           </SelectTrigger>
           <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-200">
             {assets.map(asset => (
-              <SelectItem key={asset.id} value={asset.id} >
+              <SelectItem key={asset.id} value={asset.id} label={`${asset.name} (${asset.category?.name || 'Uncategorized'})`}>
                 {`${asset.name} (${asset.category?.name || 'Uncategorized'})`}
               </SelectItem>
             ))}
@@ -173,7 +183,7 @@ export function BookingTimeline({ assets }: { assets: any[] }) {
 
               {/* Booking blocks */}
               <div className="absolute inset-0 z-10 mx-2">
-                {bookingsForDate.map((booking: any) => {
+                {bookingsForDate.map((booking) => {
                   const start = new Date(booking.startTime);
                   const end = new Date(booking.endTime);
                   

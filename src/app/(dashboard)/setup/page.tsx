@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { SetupDialogs } from "./components/SetupDialogs"; // We'll extract client components here
+import { SetupActionMenu } from "./components/SetupActionMenu";
 
 export default async function SetupPage() {
   const user = await getCurrentUser();
@@ -23,8 +24,7 @@ export default async function SetupPage() {
       orderBy: { name: "asc" }
     }),
     prisma.user.findMany({
-      where: { role: { in: ["ADMIN", "DEPARTMENT_HEAD", "ASSET_MANAGER"] } },
-      select: { id: true, name: true, role: true }
+      where: { role: { in: ["ADMIN", "DEPARTMENT_HEAD", "ASSET_MANAGER"] } }
     }),
     prisma.assetCategory.findMany({
       include: { _count: { select: { assets: true } } },
@@ -37,7 +37,7 @@ export default async function SetupPage() {
   ]);
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto h-full flex flex-col">
+    <div className="space-y-6 max-w-7xl mx-auto w-full h-full flex flex-col p-4 md:p-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Organization Setup</h1>
@@ -66,6 +66,7 @@ export default async function SetupPage() {
                   <TableHead className="text-zinc-400 font-medium h-10">Head Manager</TableHead>
                   <TableHead className="text-zinc-400 font-medium h-10">Members</TableHead>
                   <TableHead className="text-zinc-400 font-medium h-10 text-right">Status</TableHead>
+                  <TableHead className="text-zinc-400 font-medium h-10 w-16"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -81,6 +82,9 @@ export default async function SetupPage() {
                       <TableCell className="text-zinc-400 py-3">{dept._count.users}</TableCell>
                       <TableCell className="text-right py-3">
                         <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-normal">Active</Badge>
+                      </TableCell>
+                      <TableCell className="text-right py-3 pr-4">
+                        <SetupActionMenu type="department" item={dept} users={adminUsers} departments={departments} />
                       </TableCell>
                     </TableRow>
                   ))
@@ -103,6 +107,7 @@ export default async function SetupPage() {
                   <TableHead className="text-zinc-400 font-medium h-10">Name</TableHead>
                   <TableHead className="text-zinc-400 font-medium h-10">Prefix</TableHead>
                   <TableHead className="text-zinc-400 font-medium h-10 text-right">Total Assets</TableHead>
+                  <TableHead className="text-zinc-400 font-medium h-10 w-16"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -116,6 +121,9 @@ export default async function SetupPage() {
                       <TableCell className="font-medium text-zinc-200 py-3">{cat.name}</TableCell>
                       <TableCell className="text-zinc-400 py-3 font-mono text-xs"><Badge variant="outline" className="bg-zinc-800 border-zinc-700">{cat.prefix}</Badge></TableCell>
                       <TableCell className="text-right py-3 text-zinc-400">{cat._count.assets}</TableCell>
+                      <TableCell className="text-right py-3 pr-4">
+                        <SetupActionMenu type="category" item={cat} users={adminUsers} departments={departments} />
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -138,6 +146,7 @@ export default async function SetupPage() {
                   <TableHead className="text-zinc-400 font-medium h-10">Email</TableHead>
                   <TableHead className="text-zinc-400 font-medium h-10">Role</TableHead>
                   <TableHead className="text-zinc-400 font-medium h-10">Department</TableHead>
+                  <TableHead className="text-zinc-400 font-medium h-10 w-16"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -164,6 +173,9 @@ export default async function SetupPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-zinc-400 py-3">{emp.department?.name || <span className="italic text-zinc-600">Unassigned</span>}</TableCell>
+                      <TableCell className="text-right py-3 pr-4">
+                        <SetupActionMenu type="employee" item={emp} users={adminUsers} departments={departments} />
+                      </TableCell>
                     </TableRow>
                   ))
                 )}

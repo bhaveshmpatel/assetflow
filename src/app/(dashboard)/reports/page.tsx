@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UtilizationChart } from "./components/UtilizationChart";
 import { MaintenanceFrequencyChart } from "./components/MaintenanceFrequencyChart";
+import { ExportCSVButton } from "./components/ExportCSVButton";
 import { Button } from "@/components/ui/button";
 import { Download, AlertCircle, Clock } from "lucide-react";
 
@@ -24,8 +25,8 @@ export default async function ReportsPage() {
   });
 
   const utilizationData = deptAllocations.map(da => ({
-    department: depts.find(d => d.id === da.departmentId)?.name || "Unknown",
-    allocations: da._count.id
+    name: depts.find(d => d.id === da.departmentId)?.name || "Unknown",
+    active: da._count.id
   }));
 
   // 2. Maintenance Frequency (mock 6 months)
@@ -39,7 +40,7 @@ export default async function ReportsPage() {
   });
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const maintenanceFreqMap = recentMaintenance.reduce((acc: any, req) => {
+  const maintenanceFreqMap = recentMaintenance.reduce((acc: Record<string, number>, req) => {
     const month = months[new Date(req.createdAt).getMonth()];
     acc[month] = (acc[month] || 0) + 1;
     return acc;
@@ -49,7 +50,7 @@ export default async function ReportsPage() {
   const maintenanceData = Array.from({ length: 6 }).map((_, i) => {
     const mIdx = (currentMonthIdx - 5 + i + 12) % 12;
     const month = months[mIdx];
-    return { month, requests: maintenanceFreqMap[month] || 0 };
+    return { month, count: maintenanceFreqMap[month] || 0 };
   });
 
   // 3. Most used assets (by total bookings)
@@ -73,16 +74,14 @@ export default async function ReportsPage() {
   });
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto h-full flex flex-col p-4 md:p-8">
+    <div className="space-y-6 max-w-7xl mx-auto w-full h-full flex flex-col p-4 md:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Reports & Analytics</h1>
           <p className="text-zinc-400">Data-dense insights into asset utilization and health.</p>
         </div>
         {/* We'll use a standard button that triggers a client-side print/export mock */}
-        <Button className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700">
-          <Download className="mr-2 h-4 w-4" /> Export CSV
-        </Button>
+        <ExportCSVButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

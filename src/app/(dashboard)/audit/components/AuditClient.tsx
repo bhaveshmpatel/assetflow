@@ -8,15 +8,27 @@ import { CheckCircle2, AlertTriangle, XCircle, ShieldCheck } from "lucide-react"
 import { closeAuditCycle } from "@/actions/audit";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Prisma } from "@prisma/client";
 
-export function AuditClient({ activeAudit }: { activeAudit: any }) {
+type AuditCyclePayload = Prisma.AuditCycleGetPayload<{
+  include: {
+    initiatedBy: true,
+    auditItems: {
+      include: {
+        asset: true
+      }
+    }
+  }
+}>;
+
+export function AuditClient({ activeAudit }: { activeAudit: AuditCyclePayload }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [itemStates, setItemStates] = useState<Record<string, AuditItemCondition>>(
-    activeAudit.auditItems.reduce((acc: any, item: any) => {
+    activeAudit.auditItems.reduce((acc, item) => {
       acc[item.id] = item.condition || "VERIFIED";
       return acc;
-    }, {})
+    }, {} as Record<string, AuditItemCondition>)
   );
 
   const discrepancies = Object.values(itemStates).filter(s => s !== "VERIFIED").length;
@@ -24,11 +36,14 @@ export function AuditClient({ activeAudit }: { activeAudit: any }) {
   const handleComplete = async () => {
     setIsSubmitting(true);
     
-    const payload = activeAudit.auditItems.map((item: any) => ({
-      auditItemId: item.id,
-      assetId: item.assetId,
-      condition: itemStates[item.id]
-    }));
+    const payload = Object.entries(itemStates).map(([auditItemId, condition]) => {
+      const item = activeAudit.auditItems.find((i) => i.id === auditItemId);
+      return {
+        auditItemId,
+        condition,
+        assetId: item!.assetId
+      };
+    });
 
     const result = await closeAuditCycle(activeAudit.id, payload);
     
@@ -69,7 +84,7 @@ export function AuditClient({ activeAudit }: { activeAudit: any }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/50">
-            {activeAudit.auditItems.map((item: any) => (
+            {activeAudit.auditItems.map((item) => (
               <tr key={item.id} className="hover:bg-zinc-900/30 transition-colors">
                 <td className="px-6 py-4">
                   <div className="font-medium text-zinc-200">{item.asset.name}</div>

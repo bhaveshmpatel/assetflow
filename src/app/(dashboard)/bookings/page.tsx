@@ -11,7 +11,7 @@ export default async function BookingsPage() {
     include: {
       category: true,
       bookings: {
-        include: { user: { select: { name: true } } },
+        include: { user: true },
         where: { status: "CONFIRMED" },
       }
     },
@@ -19,7 +19,7 @@ export default async function BookingsPage() {
   });
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto h-full flex flex-col">
+    <div className="space-y-6 max-w-7xl mx-auto w-full h-full flex flex-col p-4 md:p-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Resource Booking</h1>
         <p className="text-zinc-400">Reserve shared assets, rooms, and vehicles.</p>

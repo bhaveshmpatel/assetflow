@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDistanceToNow } from "date-fns";
-import { LogType } from "@prisma/client";
+import { LogType, Prisma } from "@prisma/client";
 import { AlertCircle, CalendarCheck, CheckCircle2, Info, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function LogFeed({ initialLogs }: { initialLogs: any[] }) {
+type LogPayload = Prisma.ActivityLogGetPayload<{
+  include: { user: true }
+}>;
+
+export function LogFeed({ initialLogs }: { initialLogs: LogPayload[] }) {
   const [filter, setFilter] = useState<string>("ALL");
 
   const filteredLogs = initialLogs.filter((log) => {

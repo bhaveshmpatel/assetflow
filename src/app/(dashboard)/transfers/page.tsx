@@ -30,11 +30,11 @@ export default async function TransfersPage() {
   });
 
   const departments = await prisma.department.findMany({
-    select: { id: true, name: true }
+    select: { id: true, name: true, managerId: true }
   });
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto h-full flex flex-col">
+    <div className="space-y-6 max-w-7xl mx-auto w-full h-full flex flex-col p-4 md:p-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Allocation & Transfer</h1>
         <p className="text-zinc-400">Manage asset assignments and request transfers.</p>

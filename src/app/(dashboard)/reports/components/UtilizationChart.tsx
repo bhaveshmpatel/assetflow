@@ -3,7 +3,7 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function UtilizationChart({ data }: { data: any[] }) {
+export function UtilizationChart({ data }: { data: { name: string, active: number }[] }) {
   return (
     <Card className="bg-zinc-950/80 border-zinc-800 backdrop-blur-sm">
       <CardHeader>
@@ -16,7 +16,7 @@ export function UtilizationChart({ data }: { data: any[] }) {
             <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
               <XAxis 
-                dataKey="department" 
+                dataKey="name" 
                 stroke="#52525b" 
                 fontSize={12} 
                 tickLine={false} 
@@ -35,7 +35,7 @@ export function UtilizationChart({ data }: { data: any[] }) {
                 itemStyle={{ color: '#818cf8' }}
               />
               <Bar 
-                dataKey="allocations" 
+                dataKey="active" 
                 fill="#4f46e5" 
                 radius={[4, 4, 0, 0]} 
                 maxBarSize={50}
