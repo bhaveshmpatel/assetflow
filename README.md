@@ -1,10 +1,3 @@
-Here is a highly professional, production-ready `README.md` designed specifically to impress hackathon judges. It acts as both a technical guide and a pitch deck, clearly communicating the architecture, the complex business logic you tackled, and how to instantly test the application.
-
-Copy and paste this directly into your `README.md` file in the root of your repository.
-
----
-
-```markdown
 # 📦 AssetFlow
 **Enterprise Asset & Resource Management System**
 
