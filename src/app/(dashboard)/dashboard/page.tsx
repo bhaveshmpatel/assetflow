@@ -25,7 +25,8 @@ export default async function DashboardPage() {
     activeBookings,
     pendingTransfers,
     overdueAllocations,
-    recentActivity
+    recentActivity,
+    recentAlerts
   ] = await Promise.all([
     prisma.asset.count({ where: { status: "AVAILABLE" } }),
     prisma.asset.count({ where: { status: "ALLOCATED" } }),
@@ -45,7 +46,13 @@ export default async function DashboardPage() {
       } 
     }),
     prisma.activityLog.findMany({
-      take: 5,
+      take: 10,
+      orderBy: { createdAt: "desc" },
+      include: { user: { select: { name: true } } }
+    }),
+    prisma.activityLog.findMany({
+      where: { type: "ALERT" },
+      take: 3,
       orderBy: { createdAt: "desc" },
       include: { user: { select: { name: true } } }
     })
@@ -140,56 +147,80 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-7">
+      <div className="flex flex-col gap-8">
+        
+        {/* Alerts Section (Above Quick Actions) */}
+        {recentAlerts.length > 0 && (
+          <Card className="bg-red-500/5 border-red-900/30 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-red-400 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" /> System Alerts
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentAlerts.map((alert) => (
+                  <div key={alert.id} className="flex justify-between items-start text-sm">
+                    <span className="text-red-200">{alert.actionDescription}</span>
+                    <span className="text-red-500/70 text-xs whitespace-nowrap ml-4">
+                      {formatDistanceToNow(alert.createdAt, { addSuffix: true })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Quick Actions */}
-        <div className="lg:col-span-4 space-y-6">
-          <div>
-            <h2 className="text-lg font-medium text-white mb-4">Quick Actions</h2>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/assets?action=register">
-                <Button className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all hover:scale-105">
-                  <Plus className="mr-2 h-4 w-4" /> Register Asset
-                </Button>
-              </Link>
-              <Link href="/bookings">
-                <Button variant="outline" className="border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
-                  <CalendarDays className="mr-2 h-4 w-4 text-purple-400" /> Book Resource
-                </Button>
-              </Link>
-              <Link href="/maintenance">
-                <Button variant="outline" className="border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
-                  <Wrench className="mr-2 h-4 w-4 text-amber-400" /> Raise Request
-                </Button>
-              </Link>
-            </div>
+        <div>
+          <h2 className="text-lg font-medium text-white mb-4">Quick Actions</h2>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/assets?action=register">
+              <Button className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all hover:scale-105">
+                <Plus className="mr-2 h-4 w-4" /> Register Asset
+              </Button>
+            </Link>
+            <Link href="/bookings">
+              <Button variant="outline" className="border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
+                <CalendarDays className="mr-2 h-4 w-4 text-purple-400" /> Book Resource
+              </Button>
+            </Link>
+            <Link href="/maintenance">
+              <Button variant="outline" className="border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-100">
+                <Wrench className="mr-2 h-4 w-4 text-amber-400" /> Raise Request
+              </Button>
+            </Link>
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <Card className="lg:col-span-3 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
+        {/* Recent Activity (Full Width Below Quick Actions) */}
+        <Card className="bg-zinc-900/50 border-zinc-800 backdrop-blur-sm w-full">
           <CardHeader>
             <CardTitle className="text-sm font-medium text-white">System Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <div className="space-y-4">
               {recentActivity.length === 0 ? (
                 <p className="text-sm text-zinc-500 text-center py-4">No recent activity.</p>
               ) : (
-                recentActivity.map((log) => (
-                  <div key={log.id} className="flex items-start gap-4">
-                    <div className="mt-0.5 w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                    <div className="space-y-1">
-                      <p className="text-sm text-zinc-300 leading-snug">
-                        {log.actionDescription}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-zinc-500 font-medium">
-                        <span>{log.user?.name || "System"}</span>
-                        <span>•</span>
-                        <span>{formatDistanceToNow(log.createdAt, { addSuffix: true })}</span>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {recentActivity.map((log) => (
+                    <div key={log.id} className="flex items-start gap-4 p-3 rounded-lg border border-zinc-800/50 bg-zinc-950/30">
+                      <div className="mt-0.5 w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                      <div className="space-y-1">
+                        <p className="text-sm text-zinc-300 leading-snug">
+                          {log.actionDescription}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-zinc-500 font-medium">
+                          <span>{log.user?.name || "System"}</span>
+                          <span>•</span>
+                          <span>{formatDistanceToNow(log.createdAt, { addSuffix: true })}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </CardContent>

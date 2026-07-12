@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Filter } from "lucide-react";
 import { AssetDialogs } from "./components/AssetDialogs";
+import { AssetSearch } from "./components/AssetSearch";
 
 export default async function AssetsPage({
   searchParams,
@@ -55,25 +56,7 @@ export default async function AssetsPage({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-zinc-900/50 p-4 rounded-lg border border-zinc-800 backdrop-blur-sm">
-        <div className="flex flex-1 items-center gap-4 w-full sm:w-auto">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <form action="/assets" method="GET">
-              <Input 
-                name="q"
-                defaultValue={query}
-                placeholder="Search by tag, name, or serial..." 
-                className="pl-9 bg-zinc-950/50 border-zinc-800 focus-visible:ring-emerald-500 text-zinc-200"
-              />
-              {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
-            </form>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-zinc-900 border-zinc-700 text-zinc-400 py-1.5 px-3">
-              <Filter className="h-3.5 w-3.5 mr-1" /> Filters
-            </Badge>
-          </div>
-        </div>
+        <AssetSearch />
         
         <AssetDialogs categories={categories} departments={departments} />
       </div>

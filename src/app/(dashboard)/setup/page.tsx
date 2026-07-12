@@ -17,7 +17,7 @@ export default async function SetupPage() {
   }
 
   // Fetch Data
-  const [departments, users] = await Promise.all([
+  const [departments, adminUsers, categories, allUsers] = await Promise.all([
     prisma.department.findMany({
       include: { manager: { select: { name: true } }, _count: { select: { users: true } } },
       orderBy: { name: "asc" }
@@ -25,6 +25,14 @@ export default async function SetupPage() {
     prisma.user.findMany({
       where: { role: { in: ["ADMIN", "DEPARTMENT_HEAD", "ASSET_MANAGER"] } },
       select: { id: true, name: true, role: true }
+    }),
+    prisma.assetCategory.findMany({
+      include: { _count: { select: { assets: true } } },
+      orderBy: { name: "asc" }
+    }),
+    prisma.user.findMany({
+      include: { department: { select: { name: true } } },
+      orderBy: { name: "asc" }
     })
   ]);
 
@@ -48,7 +56,7 @@ export default async function SetupPage() {
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden shadow-xl backdrop-blur-sm">
             <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
               <h2 className="font-medium text-white">Department Directory</h2>
-              <SetupDialogs type="department" users={users} />
+              <SetupDialogs type="department" users={adminUsers} departments={departments} />
             </div>
             
             <Table>
@@ -83,16 +91,84 @@ export default async function SetupPage() {
         </TabsContent>
 
         <TabsContent value="categories" className="flex-1 mt-6">
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-8 text-center">
-            <p className="text-zinc-500 mb-4">Category management view is under construction.</p>
-            <Badge variant="outline" className="bg-zinc-800 text-zinc-400 border-zinc-700">Coming Soon</Badge>
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden shadow-xl backdrop-blur-sm">
+            <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+              <h2 className="font-medium text-white">Asset Categories</h2>
+              <SetupDialogs type="category" users={adminUsers} departments={departments} />
+            </div>
+            
+            <Table>
+              <TableHeader className="bg-zinc-900/80">
+                <TableRow className="border-zinc-800 hover:bg-transparent">
+                  <TableHead className="text-zinc-400 font-medium h-10">Name</TableHead>
+                  <TableHead className="text-zinc-400 font-medium h-10">Prefix</TableHead>
+                  <TableHead className="text-zinc-400 font-medium h-10 text-right">Total Assets</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {categories.length === 0 ? (
+                  <TableRow className="border-zinc-800 hover:bg-zinc-800/20 transition-colors">
+                    <TableCell colSpan={3} className="text-center py-8 text-zinc-500">No categories configured yet.</TableCell>
+                  </TableRow>
+                ) : (
+                  categories.map((cat) => (
+                    <TableRow key={cat.id} className="border-zinc-800 hover:bg-zinc-800/20 transition-colors">
+                      <TableCell className="font-medium text-zinc-200 py-3">{cat.name}</TableCell>
+                      <TableCell className="text-zinc-400 py-3 font-mono text-xs"><Badge variant="outline" className="bg-zinc-800 border-zinc-700">{cat.prefix}</Badge></TableCell>
+                      <TableCell className="text-right py-3 text-zinc-400">{cat._count.assets}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
         </TabsContent>
 
         <TabsContent value="employees" className="flex-1 mt-6">
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-8 text-center">
-            <p className="text-zinc-500 mb-4">Employee directory and role management view is under construction.</p>
-            <Badge variant="outline" className="bg-zinc-800 text-zinc-400 border-zinc-700">Coming Soon</Badge>
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 overflow-hidden shadow-xl backdrop-blur-sm">
+            <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+              <h2 className="font-medium text-white">Employee Directory</h2>
+              <SetupDialogs type="employee" users={adminUsers} departments={departments} />
+            </div>
+            
+            <Table>
+              <TableHeader className="bg-zinc-900/80">
+                <TableRow className="border-zinc-800 hover:bg-transparent">
+                  <TableHead className="text-zinc-400 font-medium h-10">Name</TableHead>
+                  <TableHead className="text-zinc-400 font-medium h-10">Email</TableHead>
+                  <TableHead className="text-zinc-400 font-medium h-10">Role</TableHead>
+                  <TableHead className="text-zinc-400 font-medium h-10">Department</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allUsers.length === 0 ? (
+                  <TableRow className="border-zinc-800 hover:bg-zinc-800/20 transition-colors">
+                    <TableCell colSpan={4} className="text-center py-8 text-zinc-500">No employees configured yet.</TableCell>
+                  </TableRow>
+                ) : (
+                  allUsers.map((emp) => (
+                    <TableRow key={emp.id} className="border-zinc-800 hover:bg-zinc-800/20 transition-colors">
+                      <TableCell className="font-medium text-zinc-200 py-3 flex items-center gap-2">
+                        {emp.name} 
+                        {emp.employeeId && <span className="text-xs text-zinc-500 font-mono">({emp.employeeId})</span>}
+                      </TableCell>
+                      <TableCell className="text-zinc-400 py-3">{emp.email}</TableCell>
+                      <TableCell className="py-3">
+                        <Badge variant="outline" className={`font-normal ${
+                          emp.role === 'ADMIN' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
+                          emp.role === 'ASSET_MANAGER' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 
+                          emp.role === 'DEPARTMENT_HEAD' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 
+                          'bg-zinc-800 text-zinc-400 border-zinc-700'
+                        }`}>
+                          {emp.role.replace("_", " ")}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-zinc-400 py-3">{emp.department?.name || <span className="italic text-zinc-600">Unassigned</span>}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
         </TabsContent>
       </Tabs>

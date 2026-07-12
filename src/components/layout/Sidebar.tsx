@@ -66,6 +66,7 @@ export function Sidebar({ user }: SidebarProps) {
     { name: "Maintenance", href: "/maintenance", icon: Wrench, roles: ["ADMIN", "ASSET_MANAGER"] },
     { name: "Audit", href: "/audit", icon: ClipboardCheck, roles: ["ADMIN", "ASSET_MANAGER"] },
     { name: "Reports", href: "/reports", icon: BarChart, roles: ["ADMIN", "ASSET_MANAGER", "DEPARTMENT_HEAD"] },
+    { name: "Notifications", href: "/notifications", icon: Bell, roles: ["ADMIN", "ASSET_MANAGER", "DEPARTMENT_HEAD", "EMPLOYEE"] },
   ];
 
   const visibleNavItems = navItems.filter((item) => item.roles.includes(user.role));
