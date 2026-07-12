@@ -31,9 +31,13 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 export default function SignUpPage() {
   const [insightIndex, setInsightIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -46,13 +50,34 @@ export default function SignUpPage() {
     resolver: zodResolver(formSchema)
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.fullName,
+          email: data.email,
+          password: data.password,
+          employeeId: data.employeeId,
+          department: data.department
+        }),
+      });
+      
+      const json = await res.json();
+      
+      if (!res.ok) {
+        toast.error(json.error || "Failed to create account");
+      } else {
+        toast.success("Account created! Please sign in.");
+        router.push("/sign-in");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred.");
+    } finally {
       setIsSubmitting(false);
-      console.log("Form submitted", data);
-    }, 1500);
+    }
   };
 
   return (

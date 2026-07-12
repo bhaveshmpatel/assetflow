@@ -12,9 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "AssetFlow | Enterprise Asset Management",
@@ -32,11 +31,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-50 selection:bg-emerald-500/30 selection:text-emerald-200">
-        <Navbar />
-        <main className="flex-1 pt-16">
+        <TooltipProvider>
           {children}
-        </main>
-        <Footer />
+        </TooltipProvider>
         <Toaster theme="dark" position="bottom-right" />
       </body>
     </html>

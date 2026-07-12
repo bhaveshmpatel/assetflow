@@ -22,26 +22,59 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+import { useRouter } from "next/navigation";
+
 export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema)
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json.error || "Sign-in failed");
+      } else {
+        toast.success("Welcome back!");
+        window.location.href = "/dashboard"; // hard reload to refresh navbar state
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred.");
+    } finally {
       setIsSubmitting(false);
-      toast.success("Successfully authenticated");
-    }, 1200);
+    }
   };
 
-  const handleSandboxLogin = (role: string) => {
-    toast(`Sandbox Bypass Activated: Logged in as ${role}`, {
-      description: "This simulates a successful authentication and redirect.",
-    });
+  const handleSandboxLogin = async (role: string) => {
+    const mappedRole = role === "Standard Employee" ? "EMPLOYEE" 
+                     : role === "Asset Manager" ? "ASSET_MANAGER" 
+                     : "ADMIN";
+                     
+    try {
+      const res = await fetch("/api/auth/sandbox-bypass", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: mappedRole }),
+      });
+      
+      if (res.ok) {
+        toast.success(`Sandbox Bypass Activated: Logged in as ${mappedRole}`);
+        window.location.href = "/dashboard"; 
+      } else {
+        toast.error("Sandbox login failed.");
+      }
+    } catch (error) {
+      toast.error("Sandbox login failed.");
+    }
   };
 
   return (

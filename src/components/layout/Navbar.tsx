@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Box, Layers } from "lucide-react";
+import { Box, Layers, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Navbar() {
+  const { user, isLoading, logout } = useAuth();
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -14,12 +17,14 @@ export function Navbar() {
       className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-6 backdrop-blur-md bg-zinc-950/70 border-b border-zinc-800"
     >
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-500">
-          <Layers className="h-5 w-5" />
-        </div>
-        <span className="text-xl font-semibold tracking-tight text-zinc-50">
-          AssetFlow
-        </span>
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-500">
+            <Layers className="h-5 w-5" />
+          </div>
+          <span className="text-xl font-semibold tracking-tight text-zinc-50">
+            AssetFlow
+          </span>
+        </Link>
       </div>
 
       <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
@@ -38,16 +43,35 @@ export function Navbar() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <Link href="/sign-in">
-          <Button variant="ghost" className="text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50">
-            Sign In
-          </Button>
-        </Link>
-        <Link href="/sign-up">
-          <Button className="bg-emerald-600 text-white hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-            Request Access
-          </Button>
-        </Link>
+        {!isLoading && (
+          <>
+            {user ? (
+              <>
+                <Link href="/dashboard">
+                  <Button variant="ghost" className="text-emerald-400 hover:text-emerald-300 hover:bg-zinc-800/50">
+                    Dashboard
+                  </Button>
+                </Link>
+                <Button onClick={logout} variant="outline" className="border-zinc-700 bg-transparent text-zinc-300 hover:bg-zinc-800 hover:text-white">
+                  <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/sign-in">
+                  <Button variant="ghost" className="text-zinc-300 hover:text-zinc-50 hover:bg-zinc-800/50">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button className="bg-emerald-600 text-white hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                    Request Access
+                  </Button>
+                </Link>
+              </>
+            )}
+          </>
+        )}
       </div>
     </motion.header>
   );

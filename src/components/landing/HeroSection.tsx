@@ -22,7 +22,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden pt-32 pb-20 md:pt-48 md:pb-32">
+    <section className="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-24">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/40 via-zinc-950 to-zinc-950 -z-10" />
       
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
