@@ -126,3 +126,37 @@ export async function createTransferRequest(formData: FormData) {
     return { success: false, error: error.message || "Failed to submit transfer request." };
   }
 }
+
+export async function getAssetDetails(assetId: string) {
+  try {
+    const asset = await prisma.asset.findUnique({
+      where: { id: assetId },
+      include: {
+        allocations: {
+          orderBy: { checkoutDate: 'desc' },
+          include: {
+            user: { select: { id: true, name: true, department: { select: { name: true } } } },
+            assignedBy: { select: { name: true } }
+          }
+        }
+      }
+    });
+
+    if (!asset) return { success: false, error: "Asset not found" };
+
+    return {
+      success: true,
+      data: {
+        id: asset.id,
+        assetTag: asset.assetTag,
+        name: asset.name,
+        status: asset.status,
+        currentAllocation: asset.allocations.find((a: any) => a.id === asset.currentAllocationId) || null,
+        history: asset.allocations
+      }
+    };
+  } catch (error: any) {
+    console.error(error);
+    return { success: false, error: "Failed to fetch asset details" };
+  }
+}
